@@ -16,22 +16,20 @@ public:
 	};
 
 private:
+	int recordOffset = sizeof(int);
 	int recordCount;
-	std::vector<Record*> records;	// delete this vector. Load only the required record 
-
-
 
 public:
 	DataFile();
 	~DataFile();
 
-	void AddRecord(string imageFilename, string name, int age);
-	Record* GetRecord(int index);
+	Record* AddRecord(string imageFilename, string name, int age);
+	Record* GetRecord(string filename, int index);
 
 	int GetRecordCount() { return recordCount; };
 
 	void Save(string filename);
-	void Load(string filename);
+	Record* Load(string filename, int index);
 
 private:
 	void Clear();

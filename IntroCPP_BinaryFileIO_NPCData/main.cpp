@@ -31,12 +31,12 @@ int main(int argc, char* argv[])
 
     InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
 
+    const char *dataFile = "npc_data.dat";
+
     DataFile data;
     int currentRecordIdx = 0;
 
-    data.Load("npc_data.dat");
-
-    DataFile::Record* currentRecord = data.GetRecord(currentRecordIdx);
+    DataFile::Record* currentRecord = data.GetRecord(dataFile, currentRecordIdx);
     Texture2D recordTexture = LoadTextureFromImage(currentRecord->image);
 
 
@@ -58,7 +58,7 @@ int main(int argc, char* argv[])
             {
                 currentRecordIdx = 0;
             }
-            currentRecord = data.GetRecord(currentRecordIdx);
+            currentRecord = data.GetRecord(dataFile, currentRecordIdx);
             recordTexture = LoadTextureFromImage(currentRecord->image);
         }
 
@@ -69,7 +69,7 @@ int main(int argc, char* argv[])
             {
                 currentRecordIdx = data.GetRecordCount();
             }
-            currentRecord = data.GetRecord(currentRecordIdx);
+            currentRecord = data.GetRecord(dataFile, currentRecordIdx);
             recordTexture = LoadTextureFromImage(currentRecord->image);
         }
 
