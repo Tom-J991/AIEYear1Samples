@@ -39,7 +39,6 @@ int main(int argc, char* argv[])
     DataFile::Record* currentRecord = data.GetRecord(dataFile, currentRecordIdx);
     Texture2D recordTexture = LoadTextureFromImage(currentRecord->image);
 
-
     SetTargetFPS(60);
     //--------------------------------------------------------------------------------------
 
@@ -55,9 +54,16 @@ int main(int argc, char* argv[])
         {
             currentRecordIdx--;
             if (currentRecordIdx < 0)
-            {
                 currentRecordIdx = 0;
-            }
+
+            // Clear previous.
+            if (recordTexture.id > 0
+                && recordTexture.width > 0 && recordTexture.height > 0
+                && recordTexture.format > 0 && recordTexture.mipmaps > 0) // Is Texture Loaded?
+                UnloadTexture(recordTexture);
+            data.Clear(currentRecord);
+
+            // Get new.
             currentRecord = data.GetRecord(dataFile, currentRecordIdx);
             recordTexture = LoadTextureFromImage(currentRecord->image);
         }
@@ -66,9 +72,16 @@ int main(int argc, char* argv[])
         {
             currentRecordIdx++;
             if (currentRecordIdx >= data.GetRecordCount())
-            {
                 currentRecordIdx = data.GetRecordCount();
-            }
+
+            // Clear previous.
+            if (recordTexture.id > 0 
+                && recordTexture.width > 0 && recordTexture.height > 0 
+                && recordTexture.format > 0 && recordTexture.mipmaps > 0) // Is Texture Loaded?
+                UnloadTexture(recordTexture);
+            data.Clear(currentRecord);
+
+            // Get new.
             currentRecord = data.GetRecord(dataFile, currentRecordIdx);
             recordTexture = LoadTextureFromImage(currentRecord->image);
         }

@@ -16,14 +16,15 @@ public:
 	};
 
 private:
-	int recordOffset = sizeof(int);
+	int lastIndex;
+	int recordOffset;
 	int recordCount;
+	int fileSize;
 
 public:
 	DataFile();
 	~DataFile();
 
-	Record* AddRecord(string imageFilename, string name, int age);
 	Record* GetRecord(string filename, int index);
 
 	int GetRecordCount() { return recordCount; };
@@ -31,8 +32,7 @@ public:
 	void Save(string filename);
 	Record* Load(string filename, int index);
 
-private:
-	void Clear();
+	void Clear(Record* record);
 
 };
 
