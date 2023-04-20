@@ -5,9 +5,6 @@ using namespace std;
 
 DataFile::DataFile()
 	: recordCount{ 0 }
-	, recordOffset{ 0 }
-	, lastIndex{ 0 }
-	, fileSize{ 0 }
 { }
 DataFile::~DataFile()
 { }
@@ -17,68 +14,23 @@ DataFile::Record* DataFile::GetRecord(string filename, int index)
 	return Load(filename, index);
 }
 
-void DataFile::Save(string filename)
-{
-	/*ofstream outfile(filename, ios::binary);
-
-	int recordCount = records.size();
-	outfile.write((char*)&recordCount, sizeof(int));
-
-	for (int i = 0; i < recordCount; i++)
-	{		
-		Color* imgdata = GetImageData(records[i]->image);
-				
-		int imageSize = sizeof(Color) * records[i]->image.width * records[i]->image.height;
-		int nameSize = records[i]->name.length();
-		int ageSize = sizeof(int);
-
-		outfile.write((char*)&records[i]->image.width, sizeof(int));
-		outfile.write((char*)&records[i]->image.height, sizeof(int));
-		
-		outfile.write((char*)&nameSize, sizeof(int));
-		outfile.write((char*)&ageSize, sizeof(int));
-
-		outfile.write((char*)imgdata, imageSize);
-		outfile.write((char*)records[i]->name.c_str(), nameSize);
-		outfile.write((char*)&records[i]->age, ageSize);
-	}
-
-	outfile.close();*/
-}
-
-int seek = 0;
 DataFile::Record* DataFile::Load(string filename, int index)
 {
 	ifstream infile(filename, ios::in | ios::binary);
 
 	if (!infile.is_open())
-		return nullptr;
+		return nullptr; // Return null pointer if failed to open.
 
-	// Get seeking direction (Delta index)
-	int dIndex = index - lastIndex;
-	
-	// Find file size
-	fileSize = 0;
-	infile.seekg(0, ios::end);
-	fileSize = infile.tellg();
-	infile.seekg(0, ios::beg);
-
-	// Get record count
+	// Get record count.
 	infile.read((char *)&recordCount, sizeof(int));
 
-	// Skip record count bytes only if at first record.
-	int tmpOffset = 0;
-	if (index == 0)
-		tmpOffset = sizeof(int);
+	// Set first index position.
+	if (indexPositions == nullptr)
+		indexPositions = new int[recordCount]; // Create dynamic array only if it is currently null.
+	indexPositions[0] = infile.tellg();
 
-	// Goto record position.
-	if (dIndex > 0) // Seeking forwards
-		seek = tmpOffset + recordOffset;
-	else if (dIndex < 0) // Seeking backwards
-		seek = recordOffset;
-	else
-		seek = tmpOffset;
-	infile.seekg(seek, ios::beg);
+	// Goto record at index.
+	infile.seekg(indexPositions[index], ios::beg);
 
 	// Read file
 	int nameSize = 0;
@@ -105,7 +57,7 @@ DataFile::Record* DataFile::Load(string filename, int index)
 	int age = 0;
 
 	infile.read((char*)name, nameSize);
-	name[nameSize] = '\0'; // Add null terminator to avoid garbage.
+	name[nameSize] = '\0'; // Add null terminator to end of array to avoid random garbage.
 
 	infile.read((char*)&age, ageSize);
 
@@ -115,10 +67,11 @@ DataFile::Record* DataFile::Load(string filename, int index)
 	r->name = string(name);
 	r->age = age;
 
-	// Clean up and return.
-	lastIndex = index;
-	recordOffset = infile.tellg();
+	// Add next index to array.
+	if (index+1 < recordCount) // Don't add if out of range.
+		indexPositions[index+1] = infile.tellg();
 
+	// Clean up and return.
 	delete[] imgdata;
 	delete[] name;
 	infile.close();

@@ -16,10 +16,8 @@ public:
 	};
 
 private:
-	int lastIndex;
-	int recordOffset;
+	int *indexPositions;
 	int recordCount;
-	int fileSize;
 
 public:
 	DataFile();
@@ -29,7 +27,6 @@ public:
 
 	int GetRecordCount() { return recordCount; };
 
-	void Save(string filename);
 	Record* Load(string filename, int index);
 
 	void Clear(Record* record);

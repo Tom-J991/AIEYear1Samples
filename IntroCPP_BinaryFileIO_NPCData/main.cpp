@@ -63,7 +63,7 @@ int main(int argc, char* argv[])
                 UnloadTexture(recordTexture);
             data.Clear(currentRecord);
 
-            // Get new.
+            // Get record.
             currentRecord = data.GetRecord(dataFile, currentRecordIdx);
             recordTexture = LoadTextureFromImage(currentRecord->image);
         }
@@ -72,7 +72,7 @@ int main(int argc, char* argv[])
         {
             currentRecordIdx++;
             if (currentRecordIdx >= data.GetRecordCount())
-                currentRecordIdx = data.GetRecordCount();
+                currentRecordIdx = data.GetRecordCount()-1;
 
             // Clear previous.
             if (recordTexture.id > 0 
@@ -81,7 +81,7 @@ int main(int argc, char* argv[])
                 UnloadTexture(recordTexture);
             data.Clear(currentRecord);
 
-            // Get new.
+            // Get record.
             currentRecord = data.GetRecord(dataFile, currentRecordIdx);
             recordTexture = LoadTextureFromImage(currentRecord->image);
         }
