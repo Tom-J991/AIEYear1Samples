@@ -59,8 +59,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CDDS_Graphs", "CDDS_Graphs\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AI_Agents_IBehaviour", "AI_Agents_IBehaviour\AI_Agents_IBehaviour.vcxproj", "{C7FC8CCD-3D44-4F42-A3A0-885857776EDF}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IntroCPP_BinaryFileIO_NPCData", "IntroCPP_BinaryFileIO_NPCData\IntroCPP_BinaryFileIO_NPCData.vcxproj", "{7544D2EA-300C-4AEB-AA7F-438762AE001F}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CDDS_Optimise", "CDDS_Optimise\CDDS_Optimise.vcxproj", "{5D2738E1-A166-40F6-936E-278C0AC90C7B}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AI_NodeGrid", "AI_NodeGrid\AI_NodeGrid.vcxproj", "{FEC2B69C-42D3-49D0-97BE-457E922772C3}"
@@ -71,10 +69,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AI_FollowPath", "AI_FollowP
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AI_BehaviourTrees", "AI_BehaviourTrees\AI_BehaviourTrees.vcxproj", "{F0B69A39-CB41-4F1D-87FF-F56B8F70FA78}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IntroCPP_BinaryFileIO_NPCData", "IntroCPP_BinaryFileIO_NPCData\Source\IntroCPP_BinaryFileIO_NPCData.vcxproj", "{7544D2EA-300C-4AEB-AA7F-438762AE001F}"
+EndProject
 Global
-	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		Raylib\Bindings\Raylib.projitems*{f660ff67-d70e-4ae0-9080-d922243e9b6e}*SharedItemsImports = 13
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|x64 = Debug|x64
@@ -382,17 +379,6 @@ Global
 		{C7FC8CCD-3D44-4F42-A3A0-885857776EDF}.Release|x64.Build.0 = Release|x64
 		{C7FC8CCD-3D44-4F42-A3A0-885857776EDF}.Release|x86.ActiveCfg = Release|Win32
 		{C7FC8CCD-3D44-4F42-A3A0-885857776EDF}.Release|x86.Build.0 = Release|Win32
-		{7544D2EA-300C-4AEB-AA7F-438762AE001F}.Debug|Any CPU.ActiveCfg = Debug|Win32
-		{7544D2EA-300C-4AEB-AA7F-438762AE001F}.Debug|Any CPU.Build.0 = Debug|Win32
-		{7544D2EA-300C-4AEB-AA7F-438762AE001F}.Debug|x64.ActiveCfg = Debug|x64
-		{7544D2EA-300C-4AEB-AA7F-438762AE001F}.Debug|x64.Build.0 = Debug|x64
-		{7544D2EA-300C-4AEB-AA7F-438762AE001F}.Debug|x86.ActiveCfg = Debug|Win32
-		{7544D2EA-300C-4AEB-AA7F-438762AE001F}.Debug|x86.Build.0 = Debug|Win32
-		{7544D2EA-300C-4AEB-AA7F-438762AE001F}.Release|Any CPU.ActiveCfg = Release|Win32
-		{7544D2EA-300C-4AEB-AA7F-438762AE001F}.Release|x64.ActiveCfg = Release|x64
-		{7544D2EA-300C-4AEB-AA7F-438762AE001F}.Release|x64.Build.0 = Release|x64
-		{7544D2EA-300C-4AEB-AA7F-438762AE001F}.Release|x86.ActiveCfg = Release|Win32
-		{7544D2EA-300C-4AEB-AA7F-438762AE001F}.Release|x86.Build.0 = Release|Win32
 		{5D2738E1-A166-40F6-936E-278C0AC90C7B}.Debug|Any CPU.ActiveCfg = Debug|Win32
 		{5D2738E1-A166-40F6-936E-278C0AC90C7B}.Debug|Any CPU.Build.0 = Debug|Win32
 		{5D2738E1-A166-40F6-936E-278C0AC90C7B}.Debug|x64.ActiveCfg = Debug|x64
@@ -446,11 +432,26 @@ Global
 		{F0B69A39-CB41-4F1D-87FF-F56B8F70FA78}.Release|x64.Build.0 = Release|x64
 		{F0B69A39-CB41-4F1D-87FF-F56B8F70FA78}.Release|x86.ActiveCfg = Release|Win32
 		{F0B69A39-CB41-4F1D-87FF-F56B8F70FA78}.Release|x86.Build.0 = Release|Win32
+		{7544D2EA-300C-4AEB-AA7F-438762AE001F}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{7544D2EA-300C-4AEB-AA7F-438762AE001F}.Debug|Any CPU.Build.0 = Debug|x64
+		{7544D2EA-300C-4AEB-AA7F-438762AE001F}.Debug|x64.ActiveCfg = Debug|x64
+		{7544D2EA-300C-4AEB-AA7F-438762AE001F}.Debug|x64.Build.0 = Debug|x64
+		{7544D2EA-300C-4AEB-AA7F-438762AE001F}.Debug|x86.ActiveCfg = Debug|Win32
+		{7544D2EA-300C-4AEB-AA7F-438762AE001F}.Debug|x86.Build.0 = Debug|Win32
+		{7544D2EA-300C-4AEB-AA7F-438762AE001F}.Release|Any CPU.ActiveCfg = Release|x64
+		{7544D2EA-300C-4AEB-AA7F-438762AE001F}.Release|Any CPU.Build.0 = Release|x64
+		{7544D2EA-300C-4AEB-AA7F-438762AE001F}.Release|x64.ActiveCfg = Release|x64
+		{7544D2EA-300C-4AEB-AA7F-438762AE001F}.Release|x64.Build.0 = Release|x64
+		{7544D2EA-300C-4AEB-AA7F-438762AE001F}.Release|x86.ActiveCfg = Release|Win32
+		{7544D2EA-300C-4AEB-AA7F-438762AE001F}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {045A42BA-B756-4EB6-B54B-753698675F60}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Raylib\Bindings\Raylib.projitems*{f660ff67-d70e-4ae0-9080-d922243e9b6e}*SharedItemsImports = 13
 	EndGlobalSection
 EndGlobal
