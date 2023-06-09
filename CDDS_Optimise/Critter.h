@@ -1,7 +1,8 @@
 #pragma once
 
-
 #include "raylib.h"
+
+#include "DoublyLinkedList.h"
 
 class Critter
 {
@@ -14,9 +15,6 @@ protected:
 
 	bool m_isLoaded;
 	bool m_isDirty;		// indicates if we've already processed a collision response for this critter
-
-	Critter *m_next;
-	Critter *m_previous;
 	
 public:
 	Critter();
@@ -45,30 +43,15 @@ public:
 
 	bool IsDead() { return m_isLoaded == false; }
 
-	Critter *GetNext() const { return m_next; }
-	void SetNext(Critter *next) { m_next = next; }
-
-	Critter *GetPrevious() const { return m_previous; }
-	void SetPrevious(Critter *previous) { m_previous = previous; }
-
 };
 
 class CritterPool
 {
 public:
-	CritterPool(unsigned int poolSize);
+	CritterPool();
 	~CritterPool();
 
-	void Create(Vector2 position, Vector2 velocity, float radius, const Texture2D &texture);
-	void Destroy();
-
-	unsigned int GetPoolSize() const { return m_poolSize; }
-	unsigned int GetActiveCount() const { return m_activeCount; }
-
 private:
-	unsigned int m_poolSize;
-	unsigned int m_activeCount;
-	Critter *m_critters;
+	DoublyLinkedList<Critter> m_critters;
 
 };
-

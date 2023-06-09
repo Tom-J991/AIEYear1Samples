@@ -51,15 +51,3 @@ void Critter::Draw()
 		{ (float)m_texture.width/2, (float)m_texture.height/2 }, 
 		0.0f, WHITE);
 }
-
-CritterPool::CritterPool(unsigned int poolSize)
-	: m_poolSize { poolSize }
-	, m_activeCount { 0 }
-	, m_critters { new Critter[poolSize] }
-{
-
-}
-CritterPool::~CritterPool()
-{ 
-	delete[] m_critters;
-}
