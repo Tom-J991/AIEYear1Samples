@@ -51,3 +51,67 @@ void Critter::Draw()
 		{ (float)m_texture.width/2, (float)m_texture.height/2 }, 
 		0.0f, WHITE);
 }
+
+CritterPool::CritterPool(unsigned int poolSize)
+	: m_poolSize { poolSize }
+{ }
+CritterPool::~CritterPool()
+{ 
+	for (int i = 0; i < m_poolSize; i++)
+	{
+		m_activeCritters[i]->Destroy();
+	}
+
+	m_activeCritters.Clear();
+	m_inactiveCritters.Clear();
+}
+
+void CritterPool::AllocateObject(Critter *critter)
+{
+	// Remove from Inactive List and put in Active List
+	if (m_activeCritters.Count() < m_poolSize) // Don't exceed size of pool
+	{
+		m_inactiveCritters.Remove(critter);
+		m_activeCritters.PushBack(critter);
+	}
+}
+void CritterPool::DeallocateObject(Critter *critter)
+{
+	// Remove from Active List and put in Inactive List
+	m_activeCritters.Remove(critter);
+	m_inactiveCritters.PushBack(critter);
+}
+
+void CritterPool::InitObject(int index, Vector2 position, Vector2 velocity, float radius, const Texture2D &texture)
+{
+	if (m_activeCritters.IsEmpty())
+		return;
+	Critter *critter = m_activeCritters[index];
+	critter->Init(position, velocity, radius, texture);
+}
+void CritterPool::DestroyObject(int index)
+{
+	if (m_activeCritters.IsEmpty())
+		return;
+	Critter *critter = m_activeCritters[index];
+	critter->Destroy();
+}
+
+void CritterPool::Update(float dt)
+{
+	if (m_activeCritters.IsEmpty())
+		return;
+	for (int i = 0; i < m_poolSize; i++)
+	{
+		m_activeCritters[i]->Update(dt);
+	}
+}
+void CritterPool::Draw()
+{
+	if (m_activeCritters.IsEmpty())
+		return;
+	for (int i = 0; i < m_poolSize; i++)
+	{
+		m_activeCritters[i]->Draw();
+	}
+}

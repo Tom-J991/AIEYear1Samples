@@ -45,13 +45,11 @@ int main(int argc, char* argv[])
     textureMap.insert(std::pair<const char*, Texture2D>("DESTROYER", LoadTexture("./res/9.png")));
     textureMap.insert(std::pair<const char*, Texture2D>("CRITTER", LoadTexture("./res/10.png")));
 
-    Critter **critters; 
-
     // create some critters
     const int CRITTER_COUNT = 50;
     const int MAX_VELOCITY = 80;
 
-    critters = new Critter*[CRITTER_COUNT];
+    CritterPool *critters = new CritterPool(CRITTER_COUNT);
 
     for (int i = 0; i < CRITTER_COUNT; i++)
     {
@@ -61,11 +59,12 @@ int main(int argc, char* argv[])
         velocity = Vector2Scale(Vector2Normalize(velocity), MAX_VELOCITY);
 
         // create a critter in a random location
-        critters[i] = new Critter();
-        critters[i]->Init(
+        Critter critter = Critter();
+        critter.Init(
             { (float)(5+rand() % (screenWidth-10)), (float)(5+(rand() % screenHeight-10)) },
             velocity,
             12, textureMap["CRITTER"]);
+        critters->AllocateObject(&critter);
     }
 
     Critter *destroyer;
@@ -110,65 +109,64 @@ int main(int argc, char* argv[])
 
         // update the critters
         // (dirty flags will be cleared during update)
+        critters->Update(delta);
         for (int i = 0; i < CRITTER_COUNT; i++)
         {
-            critters[i]->Update(delta);
-
             // check each critter against screen bounds
-            if (critters[i]->GetX() < 0) {
-                critters[i]->SetX(0);
-                critters[i]->SetVelocity(Vector2{ -critters[i]->GetVelocity().x, critters[i]->GetVelocity().y });
+            if (critters->GetX(i) < 0) {
+                critters->SetX(i, 0);
+                critters->SetVelocity(i, Vector2{ -critters->GetVelocity(i).x, critters->GetVelocity(i).y });
             }
-            if (critters[i]->GetX() > screenWidth) {
-                critters[i]->SetX(screenWidth);
-                critters[i]->SetVelocity(Vector2{ -critters[i]->GetVelocity().x, critters[i]->GetVelocity().y });
+            if (critters->GetX(i) > screenWidth) {
+                critters->SetX(i, screenWidth);
+                critters->SetVelocity(i, Vector2{ -critters->GetVelocity(i).x, critters->GetVelocity(i).y });
             }
-            if (critters[i]->GetY() < 0) {
-                critters[i]->SetY(0);
-                critters[i]->SetVelocity(Vector2{ critters[i]->GetVelocity().x, -critters[i]->GetVelocity().y });
+            if (critters->GetY(i) < 0) {
+                critters->SetY(i, 0);
+                critters->SetVelocity(i, Vector2{ critters->GetVelocity(i).x, -critters->GetVelocity(i).y });
             }
-            if (critters[i]->GetY() > screenHeight) {
-                critters[i]->SetY(screenHeight);
-                critters[i]->SetVelocity(Vector2{ critters[i]->GetVelocity().x, -critters[i]->GetVelocity().y });
+            if (critters->GetY(i) > screenHeight) {
+                critters->SetY(i, screenHeight);
+                critters->SetVelocity(i, Vector2{ critters->GetVelocity(i).x, -critters->GetVelocity(i).y });
             }
 
             // kill any critter touching the destroyer
             // simple circle-to-circle collision check
-            float dist = Vector2Distance(critters[i]->GetPosition(), destroyer->GetPosition());
-            if (dist < critters[i]->GetRadius() + destroyer->GetRadius())
+            float dist = Vector2Distance(critters->GetPosition(i), destroyer->GetPosition());
+            if (dist < critters->GetRadius(i) + destroyer->GetRadius())
             {
-                critters[i]->Destroy();
+                critters->DestroyObject(i);
                 // this would be the perfect time to put the critter into an object pool
             }
 
             // check for critter-on-critter collisions
             for (int j = 0; j < CRITTER_COUNT; j++) {
-                if (i == j || critters[i]->IsDirty()) // note: the other critter (j) could be dirty - that's OK
+                if (i == j || critters->IsDirty(i)) // note: the other critter (j) could be dirty - that's OK
                     continue;
                 // check every critter against every other critter
-                float dist = Vector2Distance(critters[i]->GetPosition(), critters[j]->GetPosition());
-                if (dist < critters[i]->GetRadius() + critters[j]->GetRadius())
+                float dist = Vector2Distance(critters->GetPosition(i), critters->GetPosition(j));
+                if (dist < critters->GetRadius(i) + critters->GetRadius(j))
                 {
                     // collision!
                     // do math to get critters bouncing
-                    Vector2 normal = Vector2Normalize(Vector2Subtract(critters[j]->GetPosition(), critters[i]->GetPosition()));
+                    Vector2 normal = Vector2Normalize(Vector2Subtract(critters->GetPosition(j), critters->GetPosition(i)));
 
                     // not even close to real physics, but fine for our needs
-                    critters[i]->SetVelocity(Vector2Scale(normal, -MAX_VELOCITY));
+                    critters->SetVelocity(i, Vector2Scale(normal, -MAX_VELOCITY));
                     // set the critter to *dirty* so we know not to process any more collisions on it
-                    critters[i]->SetDirty();
+                    critters->SetDirty(i);
 
                     // we still want to check for collisions in the case where 1 critter is dirty - so we need a check 
                     // to make sure the other critter is clean before we do the collision response
-                    if (!critters[j]->IsDirty()) {
-                        critters[j]->SetVelocity(Vector2Scale(normal, MAX_VELOCITY));
-                        critters[j]->SetDirty();
+                    if (!critters->IsDirty(j)) {
+                        critters->SetVelocity(j, Vector2Scale(normal, MAX_VELOCITY));
+                        critters->SetDirty(j);
                     }
                     break;
                 }
             }
 
-            if (critters[i]->IsDead() && respawn == true)
+            if (critters->IsDead(i) && respawn == true)
             {
                 respawn = false;
 
@@ -178,7 +176,7 @@ int main(int argc, char* argv[])
                 Vector2 pos = destroyer->GetPosition();
                 pos = Vector2Add(pos, Vector2Scale(normal, -50));
                 // its pretty ineficient to keep reloading textures. ...if only there was something else we could do
-                critters[i]->Init(pos, Vector2Scale(normal, -MAX_VELOCITY), 12, textureMap["CRITTER"]);
+                critters->InitObject(i, pos, Vector2Scale(normal, -MAX_VELOCITY), 12, textureMap["CRITTER"]);
                 break;
             }
         }
@@ -198,10 +196,7 @@ int main(int argc, char* argv[])
         ClearBackground(RAYWHITE);
 
         // draw the critters
-        for (int i = 0; i < CRITTER_COUNT; i++)
-        {
-            critters[i]->Draw();
-        }
+        critters->Draw();
         // draw the destroyer
         // (if you're wondering why it looks a little odd when sometimes critters are destroyed when they're not quite touching the 
         // destroyer, it's because the origin is at the top-left. ...you could fix that!)
@@ -222,12 +217,7 @@ int main(int argc, char* argv[])
     destroyer->Destroy();
     delete destroyer;
 
-    for (int i = 0; i < CRITTER_COUNT; i++)
-    {
-        critters[i]->Destroy();
-        delete critters[i];
-    }
-    delete[] critters;
+    delete critters;
 
     // De-Initialization
     //--------------------------------------------------------------------------------------   
