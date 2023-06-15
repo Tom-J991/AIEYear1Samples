@@ -52,33 +52,29 @@ public:
 	~CritterPool();
 
 	void AllocateObject(Critter *critter);
+	Critter *AllocateObject(int index);
+	Critter *AllocateObject();
 	void DeallocateObject(Critter *critter);
-
-	void InitObject(int index, Vector2 position, Vector2 velocity, float radius, const Texture2D &texture);
-	void DestroyObject(int index);
+	Critter *DeallocateObject(int index);
 
 	void Update(float dt);
 	void Draw();
 
-	float GetX(int index) { return m_activeCritters[index]->GetX(); }
-	float GetY(int index) { return m_activeCritters[index]->GetY(); }
-	void SetX(int index, float x) { m_activeCritters[index]->SetX(x); }
-	void SetY(int index, float y) { m_activeCritters[index]->SetY(y); }
-
-	Vector2 GetPosition(int index) { return m_activeCritters[index]->GetPosition(); }
-	void SetPosition(int index, Vector2 position) { m_activeCritters[index]->SetPosition(position); }
-
-	Vector2 GetVelocity(int index) { return m_activeCritters[index]->GetVelocity(); }
-	void SetVelocity(int index, Vector2 velocity) { m_activeCritters[index]->SetVelocity(velocity); }
-
-	float GetRadius(int index) { return m_activeCritters[index]->GetRadius(); }
-
-	bool IsDirty(int index) { return m_activeCritters[index]->IsDirty(); }
-	void SetDirty(int index) { m_activeCritters[index]->SetDirty(); }
-
-	bool IsDead(int index) { return m_activeCritters[index]->IsDead(); }
+	float GetX(int index);
+	float GetY(int index);
+	void SetX(int index, float x);
+	void SetY(int index, float y);
+	Vector2 GetPosition(int index);
+	void SetPosition(int index, Vector2 position);
+	Vector2 GetVelocity(int index);
+	void SetVelocity(int index, Vector2 velocity);
+	float GetRadius(int index);
+	bool IsDirty(int index);
+	void SetDirty(int index);
+	bool IsDead(int index);
 
 	unsigned int ActiveObjects() const { return m_activeCritters.Count(); }
+	unsigned int InactiveObjects() const { return m_inactiveCritters.Count(); }
 	unsigned int PoolCount() const { return m_activeCritters.Count() + m_inactiveCritters.Count(); }
 
 private:

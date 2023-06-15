@@ -1,9 +1,11 @@
 #pragma once
 
+#include <iterator>
+
 template <typename T>
 class DoublyLinkedList
 {
-protected:
+public:
 	struct ListNode
 	{
 		T *data;
@@ -12,15 +14,12 @@ protected:
 
 	};
 
-public:
-	class Iterator
+	struct Iterator
 	{
-	public:
-		Iterator() { m_currentNode = nullptr; }
-		Iterator(ListNode *node) { m_currentNode = node; }
+		Iterator() { }
+		Iterator(ListNode *node) : m_currentNode(node) { }
 
 		T *Current() { return m_currentNode->data; }
-
 		// Move iterator
 		bool Next()
 		{
@@ -42,11 +41,12 @@ public:
 		}
 		// Operator overloads
 		Iterator &operator++() { this->Next(); return *this; } // Prefix
-		Iterator &operator++(int) { this->Next(); return *this; } // Postfix
+		Iterator operator++(int) { Iterator tmp = *this; ++(*this); return tmp; } // Postfix
 		Iterator &operator--() { this->Prev(); return *this; } // Prefix
-		Iterator &operator--(int) { this->Prev(); return *this; } // Postfix
+		Iterator operator--(int) { Iterator tmp = *this; --(*this); return tmp; } // Postfix
 		T *operator*() { return Current(); }
-		operator ListNode *() const { return m_currentNode; }
+		ListNode *operator->() { return m_currentNode; }
+		explicit operator ListNode *() const { return m_currentNode; }
 		friend bool operator==(const Iterator &a, const Iterator &b) { return a.m_currentNode == b.m_currentNode; }
 		friend bool operator!=(const Iterator &a, const Iterator &b) { return a.m_currentNode != b.m_currentNode; }
 
@@ -59,23 +59,23 @@ public:
 	// Insert element before a node
 	void Insert(ListNode *node, T *data)
 	{
-		ListNode *newNode = new ListNode{ };
-		newNode->data = data;
-		newNode->next = node;
 		if (node != nullptr)
 		{
+			ListNode *newNode = new ListNode{ };
+			newNode->data = data;
+			newNode->next = node;
 			if (node->prev != nullptr)
 			{
 				newNode->prev = node->prev;
 				node->prev->next = newNode;
-				node->prev = newNode;
 			}
+			node->prev = newNode;
+			if (m_head == node)
+				m_head = newNode;
+			if (m_tail == nullptr)
+				m_tail = newNode;
+			m_count++;
 		}
-		if (m_head == node)
-			m_head = newNode;
-		if (m_tail == nullptr)
-			m_tail = newNode;
-		m_count++;
 	}
 	// Remove element by node
 	void Erase(ListNode *node)
@@ -86,17 +86,32 @@ public:
 				node->next->prev = node->prev;
 			if (node->prev != nullptr)
 				node->prev->next = node->next;
+			if (m_head == node)
+				m_head = node->next;
+			if (m_tail == node)
+				m_tail = node->prev;
 			node->next = nullptr;
 			node->prev = nullptr;
-			delete node->data;
 			node->data = nullptr;
 			delete node;
+			m_count--;
 		}
-		if (m_head == node)
-			m_head = node->next;
-		if (m_tail == node)
-			m_tail = node->prev;
-		m_count--;
+	}
+
+	void DeleteAll()
+	{
+		ListNode *current = m_head;
+
+		while (current != nullptr)
+		{
+			if (current->next != nullptr)
+			{
+				current = current->next;
+				delete current->data;
+			}
+			delete current;
+		}
+		
 	}
 	// Add to front/back of list
 	void PushFront(T *data)
@@ -107,7 +122,7 @@ public:
 		if (m_head != nullptr)
 			m_head->prev = newNode;
 		m_head = newNode;
-		if (m_tail == nullptr && m_count <= 0)
+		if (m_tail == nullptr)
 			m_tail = newNode;
 		m_count++;
 	}
@@ -119,7 +134,7 @@ public:
 		if (m_tail != nullptr)
 			m_tail->next = newNode;
 		m_tail = newNode;
-		if (m_head == nullptr && m_count <= 0)
+		if (m_head == nullptr)
 			m_head = newNode;
 		m_count++;
 	}
@@ -134,7 +149,6 @@ public:
 			m_head = m_head->next;
 			N->next = nullptr;
 			N->prev = nullptr;
-			delete N->data;
 			N->data = nullptr;
 			delete N;
 		}
@@ -150,7 +164,6 @@ public:
 			m_tail = m_tail->prev;
 			N->next = nullptr;
 			N->prev = nullptr;
-			delete N->data;
 			N->data = nullptr;
 			delete N;
 		}
@@ -160,45 +173,53 @@ public:
 	void Remove(T *data)
 	{
 		ListNode *nodeToRemove = nullptr;
-		for (Iterator i = Begin(); i != End(); i++)
-		{
-			if (*i == data)
-				nodeToRemove = i;
-		}
+		//for (Iterator i = Begin(); i != End(); i++)
+		//{
+		//	if (*i == data)
+		//		nodeToRemove = (ListNode *)i;
+		//}
+
+
 		if (nodeToRemove != nullptr)
 			Erase(nodeToRemove);
 	}
 	// Remove all elements
 	void Clear()
 	{
-		for (Iterator i = Begin(); i != End(); i++)
+		for (Iterator i = Begin(); i != End(); ++i)
 		{
-			ListNode *N = i;
-			if (N != nullptr)
-				Erase(N);
-			N = nullptr;
+			if ((ListNode *)i == nullptr)
+				continue;
+			ListNode *N = (ListNode *)i;
+			Erase(N);
 		}
 	}
 	// Find element by data
 	ListNode *Find(Iterator start, Iterator end, T *data)
 	{
-		ListNode *foundNode = nullptr;
+		if ((ListNode *)start == nullptr && (ListNode *)end == nullptr)
+			return nullptr;
+
+		ListNode *foundNode = (ListNode *)start;
 		for (Iterator i = start; i != end; i++)
 		{
 			if (*i == data)
-				foundNode = i;
+				foundNode = (ListNode *)i;
 		}
 		return foundNode;
 	}
 	// Find element by index
 	ListNode *Find(Iterator start, Iterator end, int index)
 	{
-		ListNode *foundNode = nullptr;
+		if ((ListNode *)start == nullptr && (ListNode *)end == nullptr)
+			return nullptr;
+
+		ListNode *foundNode = (ListNode *)start;
 		int j = 0;
 		for (Iterator i = start; i != end; i++)
 		{
 			if (index == j)
-				foundNode = i;
+				foundNode = (ListNode *)i;
 			j++;
 		}
 		return foundNode;

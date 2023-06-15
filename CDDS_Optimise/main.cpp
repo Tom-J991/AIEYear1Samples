@@ -46,7 +46,7 @@ int main(int argc, char* argv[])
     textureMap.insert(std::pair<const char*, Texture2D>("CRITTER", LoadTexture("./res/10.png")));
 
     // create some critters
-    const int CRITTER_COUNT = 50;
+    const int CRITTER_COUNT = 5;
     const int MAX_VELOCITY = 80;
 
     CritterPool *critters = new CritterPool(CRITTER_COUNT);
@@ -59,12 +59,9 @@ int main(int argc, char* argv[])
         velocity = Vector2Scale(Vector2Normalize(velocity), MAX_VELOCITY);
 
         // create a critter in a random location
-        Critter critter = Critter();
-        critter.Init(
-            { (float)(5+rand() % (screenWidth-10)), (float)(5+(rand() % screenHeight-10)) },
-            velocity,
-            12, textureMap["CRITTER"]);
-        critters->AllocateObject(&critter);
+        Critter *critter = new Critter();
+        critter->Init({ (float)(5+rand() % (screenWidth-10)), (float)(5+(rand() % screenHeight-10)) }, velocity, 12, textureMap["CRITTER"]);
+        critters->AllocateObject(critter);
     }
 
     Critter *destroyer;
@@ -135,7 +132,8 @@ int main(int argc, char* argv[])
             float dist = Vector2Distance(critters->GetPosition(i), destroyer->GetPosition());
             if (dist < critters->GetRadius(i) + destroyer->GetRadius())
             {
-                critters->DestroyObject(i);
+                Critter *critter = critters->DeallocateObject(i);
+                critter->Destroy();
                 // this would be the perfect time to put the critter into an object pool
             }
 
@@ -165,7 +163,12 @@ int main(int argc, char* argv[])
                     break;
                 }
             }
+        }
 
+        for (int i = 0; i < critters->InactiveObjects(); i++)
+        {
+            if (critters->InactiveObjects() <= 0)
+                break;
             if (critters->IsDead(i) && respawn == true)
             {
                 respawn = false;
@@ -176,7 +179,8 @@ int main(int argc, char* argv[])
                 Vector2 pos = destroyer->GetPosition();
                 pos = Vector2Add(pos, Vector2Scale(normal, -50));
                 // its pretty ineficient to keep reloading textures. ...if only there was something else we could do
-                critters->InitObject(i, pos, Vector2Scale(normal, -MAX_VELOCITY), 12, textureMap["CRITTER"]);
+                Critter *critter = critters->AllocateObject();
+                critter->Init(pos, Vector2Scale(normal, -MAX_VELOCITY), 12, textureMap["CRITTER"]);
                 break;
             }
         }

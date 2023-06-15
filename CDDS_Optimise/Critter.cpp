@@ -57,13 +57,10 @@ CritterPool::CritterPool(unsigned int poolSize)
 { }
 CritterPool::~CritterPool()
 { 
-	for (int i = 0; i < m_poolSize; i++)
-	{
-		m_activeCritters[i]->Destroy();
-	}
-
-	m_activeCritters.Clear();
-	m_inactiveCritters.Clear();
+	if (!m_activeCritters.IsEmpty())
+		m_activeCritters.DeleteAll();
+	if (!m_inactiveCritters.IsEmpty())
+		m_inactiveCritters.DeleteAll();
 }
 
 void CritterPool::AllocateObject(Critter *critter)
@@ -71,37 +68,57 @@ void CritterPool::AllocateObject(Critter *critter)
 	// Remove from Inactive List and put in Active List
 	if (m_activeCritters.Count() < m_poolSize) // Don't exceed size of pool
 	{
-		m_inactiveCritters.Remove(critter);
+		if (!m_inactiveCritters.IsEmpty())
+			m_inactiveCritters.Remove(critter);
 		m_activeCritters.PushBack(critter);
 	}
+}
+Critter *CritterPool::AllocateObject(int index)
+{
+	if (m_activeCritters.Count() < m_poolSize) // Don't exceed size of pool
+	{
+		Critter *critter = m_inactiveCritters[index];
+		if (!m_inactiveCritters.IsEmpty())
+			m_inactiveCritters.Remove(critter);
+		m_activeCritters.PushBack(critter);
+		
+		return critter;
+	}
+	return nullptr;
+}
+Critter *CritterPool::AllocateObject()
+{
+	if (m_activeCritters.Count() < m_poolSize) // Don't exceed size of pool
+	{
+		Critter *critter = m_inactiveCritters.First()->data;
+		if (!m_inactiveCritters.IsEmpty())
+			m_inactiveCritters.Remove(critter);
+		m_activeCritters.PushBack(critter);
+		return critter;
+	}
+	return nullptr;
 }
 void CritterPool::DeallocateObject(Critter *critter)
 {
 	// Remove from Active List and put in Inactive List
-	m_activeCritters.Remove(critter);
+	if (!m_activeCritters.IsEmpty())
+		m_activeCritters.Remove(critter);
 	m_inactiveCritters.PushBack(critter);
 }
-
-void CritterPool::InitObject(int index, Vector2 position, Vector2 velocity, float radius, const Texture2D &texture)
+Critter *CritterPool::DeallocateObject(int index)
 {
-	if (m_activeCritters.IsEmpty())
-		return;
 	Critter *critter = m_activeCritters[index];
-	critter->Init(position, velocity, radius, texture);
-}
-void CritterPool::DestroyObject(int index)
-{
-	if (m_activeCritters.IsEmpty())
-		return;
-	Critter *critter = m_activeCritters[index];
-	critter->Destroy();
+	if (!m_activeCritters.IsEmpty())
+		m_activeCritters.Remove(critter);
+	m_inactiveCritters.PushBack(critter);
+	return critter;
 }
 
 void CritterPool::Update(float dt)
 {
 	if (m_activeCritters.IsEmpty())
 		return;
-	for (int i = 0; i < m_poolSize; i++)
+	for (int i = 0; i < m_activeCritters.Count(); i++)
 	{
 		m_activeCritters[i]->Update(dt);
 	}
@@ -110,8 +127,81 @@ void CritterPool::Draw()
 {
 	if (m_activeCritters.IsEmpty())
 		return;
-	for (int i = 0; i < m_poolSize; i++)
+	for (int i = 0; i < m_activeCritters.Count(); i++)
 	{
 		m_activeCritters[i]->Draw();
 	}
+}
+
+float CritterPool::GetX(int index)
+{
+	if (m_activeCritters.IsEmpty())
+		return 0.0f;
+	return m_activeCritters[index]->GetX();
+}
+float CritterPool::GetY(int index)
+{
+	if (m_activeCritters.IsEmpty())
+		return 0.0f;
+	return m_activeCritters[index]->GetY();
+}
+void CritterPool::SetX(int index, float x)
+{
+	if (m_activeCritters.IsEmpty())
+		return;
+	m_activeCritters[index]->SetX(x);
+}
+void CritterPool::SetY(int index, float y)
+{
+	if (m_activeCritters.IsEmpty())
+		return;
+	m_activeCritters[index]->SetY(y);
+}
+Vector2 CritterPool::GetPosition(int index)
+{
+	if (m_activeCritters.IsEmpty())
+		return { 0.0f, 0.0f };
+	return m_activeCritters[index]->GetPosition();
+}
+void CritterPool::SetPosition(int index, Vector2 position)
+{
+	if (m_activeCritters.IsEmpty())
+		return;
+	m_activeCritters[index]->SetPosition(position);
+}
+Vector2 CritterPool::GetVelocity(int index)
+{
+	if (m_activeCritters.IsEmpty())
+		return { 0.0f, 0.0f };
+	return m_activeCritters[index]->GetVelocity();
+}
+void CritterPool::SetVelocity(int index, Vector2 velocity)
+{
+	if (m_activeCritters.IsEmpty())
+		return;
+	m_activeCritters[index]->SetVelocity(velocity);
+}
+float CritterPool::GetRadius(int index)
+{
+	if (m_activeCritters.IsEmpty())
+		return 0.0f;
+	return m_activeCritters[index]->GetRadius();
+}
+bool CritterPool::IsDirty(int index)
+{
+	if (m_activeCritters.IsEmpty())
+		return false;
+	return m_activeCritters[index]->IsDirty();
+}
+void CritterPool::SetDirty(int index)
+{
+	if (m_activeCritters.IsEmpty())
+		return;
+	m_activeCritters[index]->SetDirty();
+}
+bool CritterPool::IsDead(int index)
+{
+	if (m_inactiveCritters.IsEmpty())
+		return false;
+	return m_inactiveCritters[index]->IsDead();
 }
